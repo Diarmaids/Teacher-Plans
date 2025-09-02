@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teachers' Plans</title>
+  <meta name="description" content="Beautiful, classroom-ready plans — Yearly to Daily — for Irish primary teachers."/>
+  <!-- Tailwind Play CDN for prototyping (good enough to go live quickly) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React + ReactDOM from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+</head>
+<body class="antialiased text-neutral-900">
+  <div id="root"></div>
+
+  <script type="text/javascript">
+    const { useMemo, useState } = React;
+
+    const CLASS_LEVELS = [
+      "Junior Infants",
+      "Senior Infants",
+      "1st Class",
+      "2nd Class",
+      "3rd Class",
+      "4th Class",
+      "5th Class",
+      "6th Class",
+    ];
+
+    const PLAN_TYPES = ["Yearly", "Monthly", "Fortnightly", "Weekly", "Daily Notes", "Bundle"];
+
+    const SEED = [
+      // Bundles
+      {
+        id: "p-5th-yearly-bundle",
+        title: "5th Class Yearly Plans — Full Bundle (All Subjects)",
+        classLevel: "5th Class",
+        planType: "Bundle",
+        price: 50,
+        description:
+          "Complete set of yearly plans for 5th Class: English, Gaeilge, Maths, SESE (History & Science), SPHE, Visual Arts, Drama, Music, and PE.",
+        cover: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=1200&auto=format&fit=crop",
+      },
+      {
+        id: "p-5th-monthly-bundle",
+        title: "5th Class Monthly Plans — Full Year Bundle (Sept–May)",
+        classLevel: "5th Class",
+        planType: "Bundle",
+        price: 50,
+        description:
+          "All nine monthly plans (September–May) in one discounted bundle. Each plan includes oral language, reading, writing, Gaeilge themes, cross-curricular integration, methodologies and assessment.",
+        cover: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1200&auto=format&fit=crop",
+      },
+      {
+        id: "p-5th-complete-pack",
+        title: "5th Class Complete Planning Pack (Yearly + Monthly + Fortnightly + Daily)",
+        classLevel: "5th Class",
+        planType: "Bundle",
+        price: 50,
+        description:
+          "Everything you need for 5th Class in one pack: all Yearly subject plans, all Monthly plans (Sept–May), sample Fortnightly plans and Daily notes.",
+        cover: "https://images.unsplash.com/photo-1522206024047-9c925421675c?q=80&w=1200&auto=format&fit=crop",
+      },
+
+      // Yearly subject plans (all €10)
+      { id: "p-5th-english-yearly", title: "English — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "English yearly scheme of work: oral language, reading, writing, comprehension strategies, assessment.", cover: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-gaeilge-yearly", title: "Gaeilge — Scéim Bliana (Rang 5)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "Gaeilge yearly scheme with themes, grammar, amhráin, dánta & gníomhaíochtaí.", cover: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-maths-yearly", title: "Maths — Yearly Programme (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "Full yearly maths plan: Number, Algebra, Shape & Space, Measures, Data.", cover: "https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-history-yearly", title: "SESE History — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "History topics: Myths, Renaissance, Normans, Maya, Romans, Medieval, Explorers, WWI.", cover: "https://images.unsplash.com/photo-1505664063603-28e48ca204eb?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-science-yearly", title: "SESE Science — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "Science yearly plan covering Living Things, Energy, Materials, Environmental Awareness.", cover: "https://images.unsplash.com/photo-1517976487492-576ea6b2936d?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-sphe-yearly", title: "SPHE — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "SPHE yearly plan covering Myself, Myself & Others, Wider World.", cover: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-art-yearly", title: "Visual Arts — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "Art yearly plan: Drawing, Paint, Print, Clay, Construction, Fabric & Fibre.", cover: "https://images.unsplash.com/photo-1496318447583-f524534e9ce1?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-drama-yearly", title: "Drama — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "Drama yearly plan with strategies like freeze frames, hot seating, teacher-in-role.", cover: "https://images.unsplash.com/photo-1465508372103-60fc5e6df917?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-music-yearly", title: "Music — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "Music yearly plan: Performing, Listening, Composing; choir, instruments, Carnival of the Animals.", cover: "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-pe-yearly", title: "Physical Education — Yearly Plan (5th Class)", classLevel: "5th Class", planType: "Yearly", price: 10, description: "PE yearly plan: Games, Athletics, Gymnastics, Dance, Outdoor & Adventure, Aquatics.", cover: "https://images.unsplash.com/photo-1508606572321-901ea443707f?q=80&w=1200&auto=format&fit=crop" },
+
+      // Monthly Plans (all €10)
+      { id: "p-5th-monthly-sept", title: "5th Class Monthly Plan — September", classLevel: "5th Class", planType: "Monthly", price: 10, description: "September plan: Oral language, recounts, prediction strategy, theme All About Me.", cover: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-oct", title: "5th Class Monthly Plan — October", classLevel: "5th Class", planType: "Monthly", price: 10, description: "October plan: Occupations, Halloween, poetry, writing couplet poems.", cover: "https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-nov", title: "5th Class Monthly Plan — November", classLevel: "5th Class", planType: "Monthly", price: 10, description: "November plan: Poetry & reports, visualisation, novels Under the Hawthorn Tree/Unbearable.", cover: "https://images.unsplash.com/photo-1529245852206-88a3230e7d4d?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-dec", title: "5th Class Monthly Plan — December", classLevel: "5th Class", planType: "Monthly", price: 10, description: "December plan: Reports & letters, Gaeilge Éadaí, Christmas integration.", cover: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-jan", title: "5th Class Monthly Plan — January", classLevel: "5th Class", planType: "Monthly", price: 10, description: "January plan: Debates, reader’s theatre, persuasive & recount writing, WWI.", cover: "https://images.unsplash.com/photo-1485217988980-11786ced9454?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-feb", title: "5th Class Monthly Plan — February", classLevel: "5th Class", planType: "Monthly", price: 10, description: "February plan: Reader’s theatre, poetry & reports, Gaeilge Scoil, theme The Normans.", cover: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-mar", title: "5th Class Monthly Plan — March", classLevel: "5th Class", planType: "Monthly", price: 10, description: "March plan: Figurative language, procedural writing, STEM project integration.", cover: "https://images.unsplash.com/photo-1453743327117-664e2bf4e951?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-apr", title: "5th Class Monthly Plan — April", classLevel: "5th Class", planType: "Monthly", price: 10, description: "April plan: Register & dialect, summarising, poetry, Gaeilge Siopadóireacht.", cover: "https://images.unsplash.com/photo-1491841651911-c44c30c34548?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-monthly-may", title: "5th Class Monthly Plan — May", classLevel: "5th Class", planType: "Monthly", price: 10, description: "May plan: Debating, narrative writing, Gaeilge Féilte & Aimsir.", cover: "https://images.unsplash.com/photo-1522206024047-9c925421675c?q=80&w=1200&auto=format&fit=crop" },
+
+      // Fortnightly & Daily Plans (all €10)
+      { id: "p-5th-fortnight-oct", title: "5th Class Fortnightly Plan — October", classLevel: "5th Class", planType: "Fortnightly", price: 10, description: "October fortnightly: Halloween theme, guided reading, poetry writing, Gaeilge Mé Féin–Slí Bheatha.", cover: "https://images.unsplash.com/photo-1603052875229-00597c5a97e1?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-weekly-1", title: "5th Class Weekly Plan — Week 1", classLevel: "5th Class", planType: "Weekly", price: 10, description: "Weekly plan with timetable, success criteria & reflection prompts.", cover: "https://images.unsplash.com/photo-1523246193972-4f2d6bd8f180?q=80&w=1200&auto=format&fit=crop" },
+      { id: "p-5th-daily-1", title: "5th Class Daily Notes — Day 1", classLevel: "5th Class", planType: "Daily Notes", price: 10, description: "Daily teaching notes with minute-by-minute breakdown and materials list.", cover: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop" },
+    ];
+
+    function Badge({ children }) {
+      return (
+        React.createElement('span', { className: "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium" }, children)
+      );
+    }
+
+    function Card({ item, onQuickView }) {
+      return (
+        React.createElement('div', { className: "group rounded-2xl border bg-white shadow-sm hover:shadow-md transition overflow-hidden" },
+          React.createElement('div', { className: "relative h-44 w-full overflow-hidden" },
+            React.createElement('img', { src: item.cover, alt: item.title, className: "h-full w-full object-cover group-hover:scale-105 transition", loading: "lazy" })
+          ),
+          React.createElement('div', { className: "p-4 flex flex-col gap-2" },
+            React.createElement('div', { className: "flex items-center gap-2" },
+              React.createElement(Badge, null, item.classLevel),
+              React.createElement(Badge, null, item.planType)
+            ),
+            React.createElement('h3', { className: "text-base font-semibold leading-tight" }, item.title),
+            React.createElement('p', { className: "text-sm text-neutral-600 line-clamp-2" }, item.description),
+            React.createElement('div', { className: "mt-2 flex items-center justify-between" },
+              React.createElement('div', { className: "text-lg font-bold" }, "€", item.price),
+              React.createElement('div', { className: "flex items-center gap-2" },
+                React.createElement('button', { className: "rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50", onClick: () => onQuickView(item), "aria-label": `Preview ${item.title}` }, "Quick view"),
+                React.createElement('button', { className: "rounded-xl bg-black px-3 py-1.5 text-white text-sm hover:opacity-90" }, "Add to cart")
+              )
+            )
+          )
+        )
+      );
+    }
+
+    function Modal({ open, onClose, children, title }) {
+      if (!open) return null;
+      return React.createElement('div', { className: "fixed inset-0 z-50 flex items-center justify-center p-4" },
+        React.createElement('div', { className: "absolute inset-0 bg-black/40", onClick: onClose }),
+        React.createElement('div', { className: "relative z-10 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl" },
+          React.createElement('div', { className: "flex items-start justify-between gap-6" },
+            React.createElement('h3', { className: "text-xl font-semibold" }, title),
+            React.createElement('button', { onClick: onClose, className: "rounded-lg border px-3 py-1.5 text-sm hover:bg-neutral-50" }, "Close")
+          ),
+          React.createElement('div', { className: "mt-4" }, children)
+        )
+      );
+    }
+
+    function EmptyState() {
+      return React.createElement('div', { className: "flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-12 text-center" },
+        React.createElement('div', { className: "text-4xl" }, "📚"),
+        React.createElement('h3', { className: "mt-2 text-lg font-semibold" }, "No plans match your filters"),
+        React.createElement('p', { className: "mt-1 text-sm text-neutral-600" }, "Try clearing filters or adding new plans.")
+      );
+    }
+
+    function TeachersPlansSite() {
+      const [items, setItems] = useState(SEED);
+      const [q, setQ] = useState("");
+      const [cls, setCls] = useState("All");
+      const [typ, setTyp] = useState("All");
+      const [quickView, setQuickView] = useState(null);
+      const [addOpen, setAddOpen] = useState(false);
+
+      const filtered = useMemo(() => {
+        return items.filter((it) => {
+          const condQ = q ? (it.title + " " + it.description).toLowerCase().includes(q.toLowerCase()) : true;
+          const condC = cls === "All" ? true : it.classLevel === cls;
+          const condT = typ === "All" ? true : it.planType === typ;
+          return condQ && condC && condT;
+        });
+      }, [items, q, cls, typ]);
+
+      function handleAdd(e) {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        const newItem = {
+          id: `p-${Date.now()}`,
+          title: data.get("title"),
+          classLevel: data.get("classLevel"),
+          planType: data.get("planType"),
+          price: Number(data.get("price") || 0),
+          description: data.get("description"),
+          cover: data.get("cover") || "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop",
+        };
+        setItems((prev) => [newItem, ...prev]);
+        setAddOpen(false);
+      }
+
+      return React.createElement('div', { className: "min-h-screen bg-[radial-gradient(ellipse_at_top_left,rgba(255,240,230,0.8),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(230,245,255,0.7),transparent_40%)]" },
+        // Header
+        React.createElement('header', { className: "sticky top-0 z-40 backdrop-blur bg-white/70 border-b" },
+          React.createElement('div', { className: "mx-auto max-w-7xl px-4 py-3 flex items-center justify-between" },
+            React.createElement('div', { className: "flex items-center gap-3" },
+              React.createElement('div', { className: "h-9 w-9 grid place-items-center rounded-xl bg-black text-white font-bold" }, "TP"),
+              React.createElement('div', { className: "font-semibold" }, "Teachers' Plans")
+            ),
+            React.createElement('nav', { className: "hidden md:flex items-center gap-6 text-sm" },
+              React.createElement('a', { href: "#catalogue", className: "hover:underline" }, "Catalogue"),
+              React.createElement('a', { href: "#how", className: "hover:underline" }, "How it works"),
+              React.createElement('a', { href: "#faq", className: "hover:underline" }, "FAQ")
+            ),
+            React.createElement('div', { className: "flex items-center gap-2" },
+              React.createElement('button', { className: "rounded-xl border px-3 py-1.5 text-sm hover:bg-neutral-50", onClick: () => setAddOpen(true) }, "+ Add plan (demo)"),
+              React.createElement('button', { className: "rounded-xl bg-black px-3 py-1.5 text-white text-sm hover:opacity-90" }, "Cart (0)")
+            )
+          )
+        ),
+
+        // Hero
+        React.createElement('section', { className: "relative" },
+          React.createElement('div', { className: "mx-auto max-w-7xl px-4 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center" },
+            React.createElement('div', null,
+              React.createElement('div', { className: "inline-flex items-center gap-2 rounded-full border bg-white/70 px-3 py-1 text-xs" },
+                React.createElement('span', null, "Built for Irish primary teachers"),
+                React.createElement('span', null, "•"),
+                React.createElement('span', null, "Print & Go")
+              ),
+              React.createElement('h1', { className: "mt-4 text-4xl md:text-5xl font-extrabold leading-tight" },
+                "Beautiful, classroom-ready plans —",
+                React.createElement('span', { className: "block" }, "from Yearly to Daily.")
+              ),
+              React.createElement('p', { className: "mt-4 text-neutral-700 text-lg" },
+                "Spend less time planning and more time teaching. Download complete yearly, monthly, fortnightly, weekly plans and daily notes aligned with curriculum aims."
+              ),
+              React.createElement('div', { className: "mt-6 flex items-center gap-3" },
+                React.createElement('a', { href: "#catalogue", className: "rounded-xl bg-black px-5 py-3 text-white text-sm font-semibold hover:opacity-90" }, "Browse catalogue"),
+                React.createElement('a', { href: "#how", className: "rounded-xl border px-5 py-3 text-sm font-semibold hover:bg-white/60" }, "How it works")
+              ),
+              React.createElement('p', { className: "mt-3 text-xs text-neutral-600" }, "Secure checkout • Instant digital download • VAT invoice")
+            ),
+            React.createElement('div', { className: "relative" },
+              React.createElement('div', { className: "rounded-3xl border bg-white/70 p-4 shadow-lg" },
+                React.createElement('div', { className: "grid grid-cols-2 gap-4" },
+                  SEED.slice(0, 4).map((it) =>
+                    React.createElement('div', { key: it.id, className: "rounded-2xl overflow-hidden border" },
+                      React.createElement('img', { src: it.cover, alt: "preview", className: "h-32 w-full object-cover" })
+                    )
+                  )
+                ),
+                React.createElement('div', { className: "mt-4 p-3 rounded-xl bg-neutral-900 text-white text-sm" },
+                  "“I walked into class and just taught — everything was ready.”"
+                )
+              )
+            )
+          )
+        ),
+
+        // Catalogue + controls
+        React.createElement('section', { id: "catalogue", className: "mx-auto max-w-7xl px-4 py-12" },
+          React.createElement('div', { className: "flex flex-col md:flex-row md:items-end md:justify-between gap-4" },
+            React.createElement('div', null,
+              React.createElement('h2', { className: "text-2xl font-bold" }, "Catalogue"),
+              React.createElement('p', { className: "text-sm text-neutral-600" }, "Filter by class level and plan type. Search titles & descriptions.")
+            ),
+            React.createElement('div', { className: "flex flex-wrap items-center gap-3" },
+              React.createElement('div', { className: "flex items-center gap-2" },
+                React.createElement('label', { className: "text-sm" }, "Class"),
+                React.createElement('select', { className: "rounded-xl border px-3 py-2 text-sm", value: cls, onChange: (e) => setCls(e.target.value) },
+                  React.createElement('option', null, "All"),
+                  CLASS_LEVELS.map((c) => React.createElement('option', { key: c }, c))
+                )
+              ),
+              React.createElement('div', { className: "flex items-center gap-2" },
+                React.createElement('label', { className: "text-sm" }, "Type"),
+                React.createElement('select', { className: "rounded-xl border px-3 py-2 text-sm", value: typ, onChange: (e) => setTyp(e.target.value) },
+                  React.createElement('option', null, "All"),
+                  PLAN_TYPES.map((t) => React.createElement('option', { key: t }, t))
+                )
+              ),
+              React.createElement('input', { placeholder: "Search", className: "rounded-xl border px-3 py-2 text-sm w-full md:w-64", value: q, onChange: (e) => setQ(e.target.value) })
+            )
+          ),
+          React.createElement('div', { className: "mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" },
+            filtered.length === 0
+              ? React.createElement(EmptyState, null)
+              : filtered.map((it) => React.createElement(Card, { key: it.id, item: it, onQuickView: setQuickView }))
+          )
+        ),
+
+        // How it works
+        React.createElement('section', { id: "how", className: "mx-auto max-w-7xl px-4 py-16" },
+          React.createElement('h2', { className: "text-2xl font-bold" }, "How it works"),
+          React.createElement('div', { className: "mt-6 grid md:grid-cols-3 gap-6" },
+            [
+              { title: "Choose your level & plan", text: "Filter by class (Junior Infants–6th) and pick yearly, monthly, fortnightly, weekly, or daily notes.", icon: "🧭" },
+              { title: "Secure checkout", text: "Pay once via card or Apple/Google Pay. VAT invoice delivered instantly.", icon: "🔒" },
+              { title: "Download & teach", text: "Get editable files (PDF/Docs). Walk into class and start teaching.", icon: "⚡" },
+            ].map((s) =>
+              React.createElement('div', { key: s.title, className: "rounded-2xl border bg-white p-6 shadow-sm" },
+                React.createElement('div', { className: "text-3xl" }, s.icon),
+                React.createElement('h3', { className: "mt-2 font-semibold" }, s.title),
+                React.createElement('p', { className: "text-sm text-neutral-600" }, s.text)
+              )
+            )
+          )
+        ),
+
+        // FAQ
+        React.createElement('section', { id: "faq", className: "mx-auto max-w-7xl px-4 pb-24" },
+          React.createElement('h2', { className: "text-2xl font-bold" }, "FAQ"),
+          React.createElement('div', { className: "mt-6 grid md:grid-cols-2 gap-6" },
+            [
+              { q: "Can I add more plans later?", a: "Yes. This demo includes an Add Plan button. In production, you'll have an admin (CMS) where you can add plans anytime." },
+              { q: "Which files do customers receive?", a: "Editable Google Docs/Word + PDFs. We can also include PowerPoints and spreadsheets if relevant." },
+              { q: "Do you support EU VAT?", a: "Yes. We'll calculate Irish/EU VAT for digital goods and issue compliant invoices." },
+              { q: "Is there a school licence?", a: "Yes. Offer single-teacher and whole-school licences. Licence terms show on checkout and invoice." },
+            ].map((f) =>
+              React.createElement('div', { key: f.q, className: "rounded-2xl border bg-white p-6 shadow-sm" },
+                React.createElement('h3', { className: "font-semibold" }, f.q),
+                React.createElement('p', { className: "text-sm text-neutral-600" }, f.a)
+              )
+            )
+          )
+        ),
+
+        // Quick view modal
+        React.createElement(Modal, { open: !!quickView, onClose: () => setQuickView(null), title: quickView?.title },
+          quickView && React.createElement('div', { className: "grid md:grid-cols-2 gap-6" },
+            React.createElement('img', { src: quickView.cover, alt: quickView.title, className: "w-full rounded-xl border" }),
+            React.createElement('div', null,
+              React.createElement('div', { className: "flex items-center gap-2" },
+                React.createElement(Badge, null, quickView.classLevel),
+                React.createElement(Badge, null, quickView.planType)
+              ),
+              React.createElement('p', { className: "mt-3 text-sm text-neutral-700" }, quickView.description),
+              React.createElement('div', { className: "mt-4 text-lg font-bold" }, "€", quickView.price),
+              React.createElement('div', { className: "mt-4 flex items-center gap-2" },
+                React.createElement('button', { className: "rounded-xl bg-black px-4 py-2 text-white text-sm hover:opacity-90" }, "Add to cart"),
+                React.createElement('button', { className: "rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50" }, "View full details")
+              )
+            )
+          )
+        ),
+
+        // Add Plan (demo)
+        React.createElement(Modal, { open: addOpen, onClose: () => setAddOpen(false), title: "Add a new plan (demo form)" },
+          React.createElement('form', { className: "grid grid-cols-1 gap-4", onSubmit: handleAdd },
+            React.createElement('div', { className: "grid gap-1" },
+              React.createElement('label', { className: "text-sm" }, "Title"),
+              React.createElement('input', { name: "title", required: true, className: "rounded-xl border px-3 py-2 text-sm" })
+            ),
+            React.createElement('div', { className: "grid md:grid-cols-3 gap-3" },
+              React.createElement('div', { className: "grid gap-1" },
+                React.createElement('label', { className: "text-sm" }, "Class level"),
+                React.createElement('select', { name: "classLevel", className: "rounded-xl border px-3 py-2 text-sm", required: true },
+                  CLASS_LEVELS.map((c) => React.createElement('option', { key: c }, c))
+                )
+              ),
+              React.createElement('div', { className: "grid gap-1" },
+                React.createElement('label', { className: "text-sm" }, "Plan type"),
+                React.createElement('select', { name: "planType", className: "rounded-xl border px-3 py-2 text-sm", required: true },
+                  PLAN_TYPES.map((t) => React.createElement('option', { key: t }, t))
+                )
+              ),
+              React.createElement('div', { className: "grid gap-1" },
+                React.createElement('label', { className: "text-sm" }, "Price (€)"),
+                React.createElement('input', { name: "price", type: "number", min: "0", step: "0.01", className: "rounded-xl border px-3 py-2 text-sm", value: 10, onChange: () => {} })
+              )
+            ),
+            React.createElement('div', { className: "grid gap-1" },
+              React.createElement('label', { className: "text-sm" }, "Cover image URL (optional)"),
+              React.createElement('input', { name: "cover", className: "rounded-xl border px-3 py-2 text-sm" })
+            ),
+            React.createElement('div', { className: "grid gap-1" },
+              React.createElement('label', { className: "text-sm" }, "Short description"),
+              React.createElement('textarea', { name: "description", rows: 3, className: "rounded-xl border px-3 py-2 text-sm" })
+            ),
+            React.createElement('div', { className: "flex items-center gap-3" },
+              React.createElement('button', { type: "submit", className: "rounded-xl bg-black px-5 py-2.5 text-white text-sm font-semibold hover:opacity-90" }, "Add"),
+              React.createElement('button', { type: "button", onClick: () => setAddOpen(false), className: "rounded-xl border px-5 py-2.5 text-sm hover:bg-neutral-50" }, "Cancel")
+            )
+          )
+        ),
+
+        // Footer
+        React.createElement('footer', { className: "border-t bg-white/60" },
+          React.createElement('div', { className: "mx-auto max-w-7xl px-4 py-10 grid md:grid-cols-3 gap-6 text-sm" },
+            React.createElement('div', null,
+              React.createElement('div', { className: "font-semibold" }, "Teachers' Plans"),
+              React.createElement('p', { className: "text-neutral-600" }, "Ready-to-teach planning for Irish primary classrooms.")
+            ),
+            React.createElement('div', null,
+              React.createElement('div', { className: "font-semibold" }, "Categories"),
+              React.createElement('ul', { className: "mt-2 space-y-1" },
+                PLAN_TYPES.map((t) => React.createElement('li', { key: t }, React.createElement('a', { href: "#catalogue", className: "hover:underline" }, t)))
+              )
+            ),
+            React.createElement('div', null,
+              React.createElement('div', { className: "font-semibold" }, "Stay in the loop"),
+              React.createElement('div', { className: "mt-2 flex gap-2" },
+                React.createElement('input', { placeholder: "Email address", className: "flex-1 rounded-xl border px-3 py-2" }),
+                React.createElement('button', { className: "rounded-xl bg-black px-4 py-2 text-white hover:opacity-90" }, "Subscribe")
+              ),
+              React.createElement('p', { className: "mt-2 text-xs text-neutral-500" }, "We send occasional product updates. Unsubscribe anytime.")
+            )
+          )
+        )
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(TeachersPlansSite));
+  </script>
+</body>
+</html>

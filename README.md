@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/22099968/README.md)
 # Teachers' Plans (Static Prototype)
 
 This is a zero-build static prototype of your storefront. It uses:
