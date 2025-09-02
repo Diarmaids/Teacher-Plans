@@ -2,18 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://teacherplans.site/</loc>
+    <lastmod>2025-09-02</lastmod>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://teacherplans.site/#catalogue</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://teacherplans.site/#how</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://teacherplans.site/#faq</loc>
-    <priority>0.6</priority>
   </url>
 </urlset>
